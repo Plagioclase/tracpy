@@ -163,6 +163,7 @@ def readgrid(grid_filename, proj, vert_filename=None, usespherical=True):
             lon_rho = gridfile.variables['lon_rho'][:]
             lat_rho = gridfile.variables['lat_rho'][:]
             x_rho, y_rho = proj(lon_rho, lat_rho)
+            # x_rho, y_rho = lon_rho, lat_rho
 
             # get vertex locations
             try:
@@ -236,15 +237,21 @@ def readgrid(grid_filename, proj, vert_filename=None, usespherical=True):
             grid.c_r = nc.variables['sc_w'][:]  # sigma coords, 31 layers
         # stretching curve in sigma coords, 31 layers
         grid.Cs_r = nc.variables['Cs_w'][:]
-        grid.hc = nc.variables['hc'][:]
-        grid.theta_s = nc.variables['theta_s'][:]
-        grid.theta_b = nc.variables['theta_b'][:]
-        if 'Vtransform' in nc.variables:
-            grid.Vtransform = nc.variables['Vtransform'][:]
-            grid.Vstretching = nc.variables['Vstretching'][:]
+        if 'hc' in nc.variables:
+            grid.hc = nc.variables['hc'][:]
         else:
-            grid.Vtransform = 1
-            grid.Vstretching = 1
+            grid.hc = float(input('What is hc for this model run?'))
+        # grid.hc = nc.variables['hc'][:]
+        #grid.theta_s = nc.variables['theta_s'][:]
+        #grid.theta_b = nc.variables['theta_b'][:]
+        grid.theta_s = 8.
+        grid.theta_b = 2.
+        # if 'Vtransform' in nc.variables:
+        #     grid.Vtransform = nc.variables['Vtransform'][:]
+        #     grid.Vstretching = nc.variables['Vstretching'][:]
+        # else:
+        grid.Vtransform = 2
+        grid.Vstretching = 4
 
     # Basing this on setupgrid.f95 for rutgersNWA example project from Bror
     grid.h = gridfile.variables['h'][:]

@@ -17,7 +17,11 @@ import time
 import matplotlib.tri as mtri
 # from matplotlib.mlab import Path, find
 from matplotlib.path import Path
+from mpl_toolkits.basemap import Basemap
 
+def find(condition):
+        res, = np.nonzero(np.ravel(condition))
+        return res
 
 def interpolate2d(x, y, grid, itype, xin=None, yin=None, order=1,
                   mode='nearest', cval=0.):
@@ -165,11 +169,18 @@ def interpolate3d(x, y, z, zin, order=1, mode='nearest', cval=0.):
     # neighbor value. Distance is by number of cells not euclidean distance.
     # https://stackoverflow.com/questions/3662361/fill-in-missing-values-with-nearest-neighbour-in-python-numpy-masked-arrays
     ind = ndimage.distance_transform_edt(zin.mask, return_distances=False, return_indices=True)
-    zi = ndimage.map_coordinates(zin[tuple(ind)].T, np.array([x.flatten()-0.5,
+    # zi = ndimage.map_coordinates(zin[tuple(ind)].T, np.array([x.flatten()-0.5,
+    #                                             y.flatten()-0.5,
+    #                                             z.flatten()]),
+    #                              order=order, mode=mode,
+    #                              cval=cval).reshape(z.shape)
+    # Corrected (?) version (unsure why previous script was using bottom layer only)
+    zi = ndimage.map_coordinates(zin.T, np.array([x.flatten()-0.5,
                                                 y.flatten()-0.5,
                                                 z.flatten()]),
                                  order=order, mode=mode,
                                  cval=cval).reshape(z.shape)
+
 
     # Need to retain nan's since are changed them to zeros here
     ind = np.isnan(z)
@@ -430,6 +441,14 @@ def make_proj(setup='nwgom', usebasemap=True, **kwargs):
         inputs = {'projection': 'lcc', 'llcrnrlon': -98.5, 'llcrnrlat': 22.5,
                   'urcrnrlon': -87.5, 'urcrnrlat': 31.0, 'lat_0': 30,
                   'lon_0': -94, 'resolution': 'i', 'area_thresh': 0.}
+
+        usebasemap = True
+
+    elif setup == 'WIO':
+
+        inputs = {'projection': 'lcc', 'llcrnrlon': 30, 'llcrnrlat': -25,
+                  'urcrnrlon': 80, 'urcrnrlat': 2.5, 'lat_0': -12.5,
+                  'lon_0': 55, 'resolution': 'i', 'area_thresh': 0.}
 
         usebasemap = True
 
